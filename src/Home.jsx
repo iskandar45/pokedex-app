@@ -1,6 +1,6 @@
 import axios from "axios"
-import React, { useEffect, useState } from "react"
-import { Link, useHistory } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { sliceData } from "./utils/sliceNumber"
 
 export default function Home() {
@@ -10,7 +10,7 @@ export default function Home() {
   const [pokemon, setPokemon] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const fetchData = async () => {
     setLoading(true)
@@ -32,7 +32,7 @@ export default function Home() {
     if (e.key === "Enter") {
       const query = e.target.value.trim().toLowerCase()
       if (!query) return
-      history.push(`/detail/${query}`)
+      navigate(`/detail/${query}`)
       setPokemon("")
     }
   }

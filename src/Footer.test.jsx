@@ -1,0 +1,36 @@
+import { describe, expect, it } from "vitest"
+import { render, screen } from "@testing-library/react"
+import Footer from "./Footer"
+
+describe("Footer", () => {
+  it("renders the current year in the copyright notice", () => {
+    const { container } = render(<Footer />)
+
+    expect(container.querySelector("footer")).toHaveTextContent(String(new Date().getFullYear()))
+  })
+
+  it("links to React and Vercel", () => {
+    render(<Footer />)
+
+    expect(screen.getByRole("link", { name: "React" })).toHaveAttribute(
+      "href",
+      "http://reactjs.org"
+    )
+    expect(screen.getByRole("link", { name: "Vercel" })).toHaveAttribute(
+      "href",
+      "http://vercel.com"
+    )
+  })
+
+  it("renders the author profile link safely", () => {
+    render(<Footer />)
+
+    const profileLink = screen
+      .getAllByRole("link")
+      .find((link) => link.getAttribute("href")?.includes("iskandar45"))
+
+    expect(profileLink).toBeDefined()
+    expect(profileLink).toHaveAttribute("target", "_blank")
+    expect(profileLink).toHaveAttribute("rel", "noreferrer")
+  })
+})
