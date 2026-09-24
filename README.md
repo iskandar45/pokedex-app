@@ -1,70 +1,57 @@
-# Getting Started with Create React App
+# PokéDex App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A small React Pokédex that browses and searches Pokémon from [PokéAPI](https://pokeapi.co/).
+
+Built with **Vite**, **React 19**, **React Router 7** and **Tailwind CSS 4**.
+
+## Requirements
+
+- Node.js **24 LTS** or newer (see `.nvmrc`)
+
+```bash
+nvm use
+```
 
 ## Available Scripts
 
-In the project directory, you can run:
+### `npm run dev`
 
-### `yarn start`
+Runs the app in development mode with Vite's HMR.
+Open the printed URL (default [http://localhost:5173](http://localhost:5173)).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### `npm test`
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Runs the Vitest suite once. Use `npm run test:watch` for watch mode and
+`npm run test:coverage` for a coverage report (`coverage/`).
 
-### `yarn test`
+### `npm run build`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Builds the production bundle into `dist/`.
 
-### `yarn build`
+### `npm run preview`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Serves the built `dist/` folder locally so you can sanity-check the production bundle.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `npm run lint`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Runs ESLint over the project (flat config in `eslint.config.js`).
 
-### `yarn eject`
+## Project structure
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```
+index.html            Vite entry document
+vite.config.js        Vite + Vitest configuration
+src/main.jsx          Application entrypoint
+src/App.jsx           Router and layout
+src/Home.jsx          Paginated Pokémon list + name search
+src/Detail.jsx        Single Pokémon detail view
+src/Navbar.jsx        Top navigation
+src/Footer.jsx        Footer
+src/utils/            Helpers (PokéAPI sprite id formatting)
+src/*.test.jsx        Unit tests (Vitest + Testing Library)
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Data source
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+All data comes from the public PokéAPI (`https://pokeapi.co/api/v2`). Pokémon artwork is loaded
+from `https://assets.pokemon.com`. No API key or backend is required.

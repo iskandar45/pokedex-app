@@ -1,41 +1,54 @@
 import axios from "axios"
-import React, { useEffect, useState } from "react"
-import { Link, useHistory } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { sliceData } from "./utils/sliceNumber"
 
 export default function Home() {
-  const [data, setData] = useState([])
+  const [data, setData] = useState({})
   const [offset, setOffset] = useState(0)
-  const [limit, setLimit] = useState(20)
+  const [limit] = useState(20)
   const [pokemon, setPokemon] = useState("")
   const [loading, setLoading] = useState(true)
-  const history = useHistory()
+  const [refetching, setRefetching] = useState(false)
+  const [error, setError] = useState("")
+  const navigate = useNavigate()
 
-  const fetchData = async () => {
+  const fetchData = async (isRefetch = false) => {
+    setError("")
+    if (isRefetch) {
+      setRefetching(true)
+    } else {
+      setLoading(true)
+    }
     try {
       const res = await axios.get(
         `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`
       )
       setData(res.data)
-      setLoading(false)
     } catch (err) {
-      console.log(err.response.data)
+      console.error(err)
+      setError("Failed to load the Pokemon list. Please check your connection and try again.")
+    } finally {
       setLoading(false)
+      setRefetching(false)
     }
   }
 
-  const handleKeyPress = async (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      setPokemon(e.target.value)
-      history.push(`/detail/${pokemon}`)
+      const query = e.target.value.trim().toLowerCase()
+      if (!query) return
+      navigate(`/detail/${query}`)
       setPokemon("")
-      setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchData()
+    fetchData(Boolean(data.results))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offset])
+
+  const hasResults = Boolean(data.results)
 
   return (
     <div className="min-h-full">
@@ -45,24 +58,38 @@ export default function Home() {
           placeholder="Enter pokemon name..."
           type="text"
           value={pokemon}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           onChange={(e) => setPokemon(e.target.value)}
         />
       </div>
-      {loading ? (
+      {!hasResults && loading ? (
         <div className="flex justify-center items-center h-[77vh]">
           <div className="animate-spin rounded-full h-52 w-52 border-t-2 border-b-2 border-gray-900"></div>
         </div>
+      ) : error && !hasResults ? (
+        <div className="container mx-auto my-20 text-center">
+          <p className="text-6xl mb-4">😵</p>
+          <p className="text-xl font-semibold text-red-600 mb-6">{error}</p>
+          <button
+            onClick={() => fetchData()}
+            className="rounded-lg px-6 py-3 border border-slate-300 shadow-md bg-blue-600 text-white hover:bg-blue-700 text-lg font-semibold"
+          >
+            Retry
+          </button>
+        </div>
       ) : (
         <div className="container mx-auto my-10">
+          {error && hasResults ? (
+            <p className="text-center text-red-600 font-semibold mb-4">{error}</p>
+          ) : null}
           <div className="grid sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-4 gap-5 justify-items-center ">
-            {data.results?.map((item, index) => {
+            {data.results?.map((item) => {
               const urlImgPokemon = `https://assets.pokemon.com/assets/cms2/img/pokedex/detail/${sliceData(
                 item.url
               )}.png`
               return (
                 <div
-                  key={index}
+                  key={item.name}
                   className="border p-5 border-slate-300 w-full rounded shadow-lg bg-white hover:bg-slate-100"
                 >
                   <h2 className="capitalize text-center font-semibold text-2xl">{item.name}</h2>
@@ -76,6 +103,11 @@ export default function Home() {
               )
             })}
           </div>
+          {refetching ? (
+            <div className="flex justify-center py-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
+            </div>
+          ) : null}
           <div className="py-7 text-center">
             <button
               disabled={!data.previous}

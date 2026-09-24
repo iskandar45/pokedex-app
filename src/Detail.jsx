@@ -1,39 +1,76 @@
 import axios from "axios"
-import React, { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { Link, useParams } from "react-router-dom"
 
 function Detail() {
-  const [data, setData] = useState([])
+  const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const { name } = useParams()
-  // console.log(name)
 
-  const fetchData = async () => {
-    try {
-      const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`)
-      setData(res.data)
-      setLoading(false)
-      // console.log(res.data)
-    } catch (err) {
-      console.log(err.response.data)
-      setLoading(false)
-    }
+  // Reset stale state synchronously during render so switching between two
+  // /detail/:name routes never paints the previous pokemon (React docs:
+  // "adjusting state when a prop changes").
+  const [prevName, setPrevName] = useState(name)
+  if (prevName !== name) {
+    setPrevName(name)
+    setData(null)
+    setError("")
+    setLoading(true)
   }
+
+  useEffect(() => {
+    let isActive = true
+
+    const fetchData = async () => {
+      setLoading(true)
+      setError("")
+      try {
+        const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`)
+        if (!isActive) return
+        setData(res.data)
+      } catch (err) {
+        if (!isActive) return
+        if (err.response && err.response.status === 404) {
+          setError(`Pokemon "${name}" was not found. Please check the spelling and try again.`)
+        } else {
+          setError("Failed to load Pokemon data. Please check your internet connection and try again.")
+        }
+      } finally {
+        if (isActive) setLoading(false)
+      }
+    }
+
+    fetchData()
+
+    return () => {
+      isActive = false
+    }
+  }, [name])
 
   const padNumber = (num) => {
     return String(num).padStart(3, "0")
   }
 
-  useEffect(() => {
-    fetchData()
-  }, [])
-
-  // console.log(data)
   return (
     <div className="min-h-full">
       {loading ? (
         <div className="flex justify-center items-center h-[82vh]">
           <div className="animate-spin rounded-full h-52 w-52 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+      ) : error ? (
+        <div className="container max-w-4xl mx-auto">
+          <div className="border bg-white p-10 my-8 rounded-lg shadow-lg text-center">
+            <p className="text-6xl mb-4">😕</p>
+            <h1 className="text-3xl font-bold mb-3">Oops!</h1>
+            <p className="text-slate-600 mb-6">{error}</p>
+            <Link
+              to="/"
+              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
+            >
+              Back to Home
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="container max-w-4xl mx-auto">
@@ -75,11 +112,11 @@ function Detail() {
                 <div className="sm:grid-cols-1 grid md:grid-cols-2">
                   <div>
                     <h3 className="text-2xl mt-5">Weight:</h3>
-                    <p className="text-xl font-semibold">{data.weight} g</p>
+                    <p className="text-xl font-semibold">{(data.weight / 10).toFixed(1)} kg</p>
                   </div>
                   <div>
                     <h3 className="text-2xl mt-5">Height:</h3>
-                    <p className="text-xl font-semibold">{data.height} cm</p>
+                    <p className="text-xl font-semibold">{(data.height / 10).toFixed(1)} m</p>
                   </div>
                 </div>
               </div>
@@ -93,7 +130,7 @@ function Detail() {
                     <div className="w-full rounded-lg bg-neutral-200 dark:bg-neutral-600">
                       <div
                         className="bg-blue-400 rounded-lg p-0.5 text-center text-md font-medium leading-none"
-                        style={{ width: `${item.base_stat}%` }}
+                        style={{ width: `${Math.min(100, (item.base_stat / 255) * 100)}%` }}
                       >
                         {item.base_stat}
                       </div>

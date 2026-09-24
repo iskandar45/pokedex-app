@@ -1,17 +1,18 @@
-import Detail from "./Detail"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Home from "./Home"
-import { BrowserRouter, Switch, Route } from "react-router-dom"
+import Detail from "./Detail"
 import Navbar from "./Navbar"
 import Footer from "./Footer"
+
 const App = () => {
   return (
     <div>
       <BrowserRouter>
         <Navbar />
-        <Switch>
-          <Route exact path="/" component={Home} />
-          <Route exact path="/detail/:name" component={Detail} />
-        </Switch>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/detail/:name" element={<Detail />} />
+        </Routes>
         <Footer />
       </BrowserRouter>
     </div>
