@@ -24,6 +24,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Early warning only: never fails the build. A non-zero exit means
+      # package.json and package-lock.json have drifted apart; the follow-up
+      # install/test/build steps still run so the rest of CI stays informative.
+      - name: Check lockfile is in sync
+        if: always()
+        run: npm ci --dry-run
+        continue-on-error: true
+
       - name: Lint
         run: npm run lint
 
