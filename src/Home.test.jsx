@@ -42,6 +42,9 @@ const renderHome = () =>
 
 const searchInput = () => screen.getByPlaceholderText("Enter pokemon name...")
 
+const fullSpinner = () => document.querySelector(".h-52.animate-spin")
+const inlineSpinner = () => document.querySelector(".h-8.animate-spin")
+
 describe("Home", () => {
   beforeEach(() => {
     axios.get.mockReset()
@@ -136,6 +139,46 @@ describe("Home", () => {
 
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled()
     expect(screen.getByRole("button", { name: "prev" })).toBeEnabled()
+  })
+
+  it("keeps the grid visible with an inline spinner while a page change is in flight", async () => {
+    const user = userEvent.setup()
+    respondWithPage(0)
+    renderHome()
+    await screen.findByText("bulbasaur")
+
+    let resolveNext
+    axios.get.mockReturnValue(
+      new Promise((resolve) => {
+        resolveNext = resolve
+      })
+    )
+    await user.click(screen.getByRole("button", { name: "Next" }))
+
+    // old page stays on screen, no full-height spinner overlay
+    expect(screen.getByText("bulbasaur")).toBeInTheDocument()
+    expect(fullSpinner()).toBeNull()
+    expect(inlineSpinner()).not.toBeNull()
+
+    resolveNext({ data: buildPage(20) })
+    await waitFor(() => expect(screen.getByRole("button", { name: "prev" })).toBeEnabled())
+    expect(inlineSpinner()).toBeNull()
+  })
+
+  it("shows an inline error but keeps the current page when a page change fails", async () => {
+    const user = userEvent.setup()
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {})
+    respondWithPage(0)
+    renderHome()
+    await screen.findByText("bulbasaur")
+
+    axios.get.mockRejectedValueOnce(new Error("network down"))
+    await user.click(screen.getByRole("button", { name: "Next" }))
+
+    expect(await screen.findByText(/Failed to load the Pokemon list/)).toBeInTheDocument()
+    expect(screen.getByText("bulbasaur")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Next" })).toBeEnabled()
+    consoleError.mockRestore()
   })
 
   it("navigates to the detail route when Enter is pressed", async () => {

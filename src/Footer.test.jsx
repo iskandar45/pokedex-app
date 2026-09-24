@@ -30,6 +30,7 @@ describe("Footer", () => {
       .find((link) => link.getAttribute("href")?.includes("iskandar45"))
 
     expect(profileLink).toBeDefined()
+    expect(profileLink).toHaveAttribute("href", "https://github.com/iskandar45")
     expect(profileLink).toHaveAttribute("target", "_blank")
     expect(profileLink).toHaveAttribute("rel", "noreferrer")
   })

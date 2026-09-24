@@ -8,6 +8,17 @@ function Detail() {
   const [error, setError] = useState("")
   const { name } = useParams()
 
+  // Reset stale state synchronously during render so switching between two
+  // /detail/:name routes never paints the previous pokemon (React docs:
+  // "adjusting state when a prop changes").
+  const [prevName, setPrevName] = useState(name)
+  if (prevName !== name) {
+    setPrevName(name)
+    setData(null)
+    setError("")
+    setLoading(true)
+  }
+
   useEffect(() => {
     let isActive = true
 
@@ -101,11 +112,11 @@ function Detail() {
                 <div className="sm:grid-cols-1 grid md:grid-cols-2">
                   <div>
                     <h3 className="text-2xl mt-5">Weight:</h3>
-                    <p className="text-xl font-semibold">{data.weight} g</p>
+                    <p className="text-xl font-semibold">{(data.weight / 10).toFixed(1)} kg</p>
                   </div>
                   <div>
                     <h3 className="text-2xl mt-5">Height:</h3>
-                    <p className="text-xl font-semibold">{data.height} cm</p>
+                    <p className="text-xl font-semibold">{(data.height / 10).toFixed(1)} m</p>
                   </div>
                 </div>
               </div>
@@ -119,7 +130,7 @@ function Detail() {
                     <div className="w-full rounded-lg bg-neutral-200 dark:bg-neutral-600">
                       <div
                         className="bg-blue-400 rounded-lg p-0.5 text-center text-md font-medium leading-none"
-                        style={{ width: `${item.base_stat}%` }}
+                        style={{ width: `${Math.min(100, (item.base_stat / 255) * 100)}%` }}
                       >
                         {item.base_stat}
                       </div>

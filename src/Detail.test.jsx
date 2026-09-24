@@ -80,8 +80,8 @@ describe("Detail", () => {
     expect(screen.getByText("electric")).toBeInTheDocument()
     expect(screen.getByText("static")).toBeInTheDocument()
     expect(screen.getByText("lightning rod")).toBeInTheDocument()
-    expect(screen.getByText("60 g")).toBeInTheDocument()
-    expect(screen.getByText("4 cm")).toBeInTheDocument()
+    expect(screen.getByText("6.0 kg")).toBeInTheDocument()
+    expect(screen.getByText("0.4 m")).toBeInTheDocument()
     expect(screen.getByText("- hp: 35")).toBeInTheDocument()
     expect(screen.getByText("- attack: 55")).toBeInTheDocument()
   })
@@ -152,6 +152,23 @@ describe("Detail", () => {
 
     await waitFor(() => expect(screen.getByText("- eevee -")).toBeInTheDocument())
     expect(screen.queryByText(/was not found/)).not.toBeInTheDocument()
+  })
+
+  it("clears stale data and shows a spinner immediately when the param changes", async () => {
+    const user = userEvent.setup()
+    axios.get.mockImplementation((url) =>
+      url.endsWith("eevee") ? new Promise(() => {}) : Promise.resolve({ data: pikachu })
+    )
+
+    renderDetail("pikachu")
+    expect(await screen.findByText("- pikachu -")).toBeInTheDocument()
+
+    await user.click(screen.getByRole("button", { name: "go to eevee" }))
+
+    // old pokemon never repaints; loading state takes over right away
+    expect(screen.queryByText("- pikachu -")).not.toBeInTheDocument()
+    expect(document.querySelector(".animate-spin")).not.toBeNull()
+    expect(axios.get).toHaveBeenLastCalledWith(`${POKEMON_URL}/eevee`)
   })
 
   it("refetches when the route param changes", async () => {
