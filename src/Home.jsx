@@ -52,37 +52,50 @@ export default function Home() {
 
   return (
     <div className="min-h-full">
-      <div className="text-center">
-        <input
-          className="border border-slate-300 w-1/2 shadow-md bg-white px-3 py-3 rounded-lg focus:outline-violet-500"
-          placeholder="Enter pokemon name..."
-          type="text"
-          value={pokemon}
-          onKeyDown={handleKeyDown}
-          onChange={(e) => setPokemon(e.target.value)}
-        />
+      <div className="text-center px-4">
+        <label htmlFor="pokemon-search" className="sr-only">
+          Search a Pokemon by name
+        </label>
+        <div className="inline-flex items-center glass rounded-xl overflow-hidden w-full max-w-xl">
+          <span className="font-mono text-term-green pl-4 select-none" aria-hidden="true">
+            &gt;_
+          </span>
+          <input
+            id="pokemon-search"
+            className="font-mono bg-transparent w-full px-3 py-3 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-0"
+            placeholder="search pokemon..."
+            type="text"
+            value={pokemon}
+            onKeyDown={handleKeyDown}
+            onChange={(e) => setPokemon(e.target.value)}
+            autoComplete="off"
+          />
+        </div>
       </div>
       {!hasResults && loading ? (
         <div className="flex justify-center items-center h-[77vh]">
-          <div className="animate-spin rounded-full h-52 w-52 border-t-2 border-b-2 border-gray-900"></div>
+          <div className="animate-spin rounded-full h-52 w-52 border-t-2 border-b-2 border-term-green"></div>
         </div>
       ) : error && !hasResults ? (
         <div className="container mx-auto my-20 text-center">
-          <p className="text-6xl mb-4">😵</p>
-          <p className="text-xl font-semibold text-red-600 mb-6">{error}</p>
+          <p className="font-mono text-term-red text-xl mb-6">
+            [error] {error}
+          </p>
           <button
             onClick={() => fetchData()}
-            className="rounded-lg px-6 py-3 border border-slate-300 shadow-md bg-blue-600 text-white hover:bg-blue-700 text-lg font-semibold"
+            className="glass-btn font-mono rounded-lg px-6 py-3 text-term-green text-lg font-semibold"
           >
-            Retry
+            retry
           </button>
         </div>
       ) : (
         <div className="container mx-auto my-10">
           {error && hasResults ? (
-            <p className="text-center text-red-600 font-semibold mb-4">{error}</p>
+            <p className="font-mono text-center text-term-red font-semibold mb-4">
+              [warn] {error}
+            </p>
           ) : null}
-          <div className="grid sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-4 gap-5 justify-items-center ">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 justify-items-center">
             {data.results?.map((item) => {
               const urlImgPokemon = `https://assets.pokemon.com/assets/cms2/img/pokedex/detail/${sliceData(
                 item.url
@@ -90,13 +103,16 @@ export default function Home() {
               return (
                 <div
                   key={item.name}
-                  className="border p-5 border-slate-300 w-full rounded shadow-lg bg-white hover:bg-slate-100"
+                  className="glass p-5 w-full rounded-xl hover:border-term-green/50 transition-colors"
                 >
-                  <h2 className="capitalize text-center font-semibold text-2xl">{item.name}</h2>
-                  <img src={urlImgPokemon} alt={item.name} className="w-full" />
+                  <h2 className="font-mono capitalize text-center font-semibold text-xl text-slate-100">
+                    <span className="text-slate-500">#</span>
+                    {item.name}
+                  </h2>
+                  <img src={urlImgPokemon} alt={item.name} className="w-full" loading="lazy" />
                   <Link to={`/detail/${item.name}`}>
-                    <button className="border bg-blue-600 rounded text-white border-slate-500 w-full px-3 py-2 hover:invert font-semibold">
-                      Detail
+                    <button className="glass-btn font-mono rounded-lg text-term-green w-full px-3 py-2 font-semibold">
+                      ./detail
                     </button>
                   </Link>
                 </div>
@@ -105,27 +121,23 @@ export default function Home() {
           </div>
           {refetching ? (
             <div className="flex justify-center py-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-term-green"></div>
             </div>
           ) : null}
           <div className="py-7 text-center">
             <button
               disabled={!data.previous}
               onClick={() => setOffset(offset - limit)}
-              className={`mr-5 rounded-lg px-6 py-3 border border-slate-300 shadow-md bg-green-500 w-1/4 hover:invert text-lg ${
-                !data.previous ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className="glass-btn font-mono mr-5 rounded-lg px-6 py-3 text-term-cyan text-lg w-1/4"
             >
-              prev
+              &lt; prev
             </button>
             <button
               disabled={!data.next}
               onClick={() => setOffset(offset + limit)}
-              className={`rounded-lg px-6 py-3 border border-slate-300 shadow-md bg-green-500 w-1/4 hover:invert text-lg ${
-                !data.next ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className="glass-btn font-mono rounded-lg px-6 py-3 text-term-cyan text-lg w-1/4"
             >
-              Next
+              next &gt;
             </button>
           </div>
         </div>

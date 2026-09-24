@@ -19,7 +19,7 @@ describe("Navbar", () => {
   it("renders the app title", () => {
     renderNavbar()
 
-    expect(screen.getByText("PokéDex")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /pokedex/ })).toBeInTheDocument()
   })
 
   it("navigates back to the home route when the title is clicked", async () => {
@@ -28,7 +28,7 @@ describe("Navbar", () => {
 
     expect(screen.getByText("detail route")).toBeInTheDocument()
 
-    await user.click(screen.getByText("PokéDex"))
+    await user.click(screen.getByRole("button", { name: /pokedex/ }))
 
     expect(screen.getByText("home route")).toBeInTheDocument()
   })

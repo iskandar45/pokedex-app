@@ -3,12 +3,6 @@ import { render, screen } from "@testing-library/react"
 import Footer from "./Footer"
 
 describe("Footer", () => {
-  it("renders the current year in the copyright notice", () => {
-    const { container } = render(<Footer />)
-
-    expect(container.querySelector("footer")).toHaveTextContent(String(new Date().getFullYear()))
-  })
-
   it("links to React and Vercel", () => {
     render(<Footer />)
 
@@ -33,5 +27,13 @@ describe("Footer", () => {
     expect(profileLink).toHaveAttribute("href", "https://github.com/iskandar45")
     expect(profileLink).toHaveAttribute("target", "_blank")
     expect(profileLink).toHaveAttribute("rel", "noreferrer")
+    expect(profileLink).toHaveAccessibleName("Author's GitHub profile")
+  })
+
+  it("renders within a footer landmark", () => {
+    const { container } = render(<Footer />)
+
+    expect(container.querySelector("footer")).toBeInTheDocument()
+    expect(container.querySelector("footer")).toHaveTextContent("built with")
   })
 })

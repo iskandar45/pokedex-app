@@ -63,7 +63,7 @@ describe("Detail", () => {
     axios.get.mockResolvedValue({ data: pikachu })
     renderDetail("pikachu")
 
-    await screen.findByText("- pikachu -")
+    await screen.findByText("pikachu", { selector: "h2" })
 
     expect(axios.get).toHaveBeenCalledWith(`${POKEMON_URL}/pikachu`)
   })
@@ -72,7 +72,7 @@ describe("Detail", () => {
     axios.get.mockResolvedValue({ data: pikachu })
     renderDetail("pikachu")
 
-    expect(await screen.findByText("- pikachu -")).toBeInTheDocument()
+    expect(await screen.findByText("pikachu", { selector: "h2" })).toBeInTheDocument()
     expect(screen.getByAltText("pikachu")).toHaveAttribute(
       "src",
       "https://assets.pokemon.com/assets/cms2/img/pokedex/full/025.png"
@@ -82,8 +82,10 @@ describe("Detail", () => {
     expect(screen.getByText("lightning rod")).toBeInTheDocument()
     expect(screen.getByText("6.0 kg")).toBeInTheDocument()
     expect(screen.getByText("0.4 m")).toBeInTheDocument()
-    expect(screen.getByText("- hp: 35")).toBeInTheDocument()
-    expect(screen.getByText("- attack: 55")).toBeInTheDocument()
+    expect(screen.getByText("hp", { exact: false })).toBeInTheDocument()
+    expect(screen.getByText("attack", { exact: false })).toBeInTheDocument()
+    expect(screen.getByText("35")).toBeInTheDocument()
+    expect(screen.getByText("55")).toBeInTheDocument()
   })
 
   it("shows a not found message for a 404 response", async () => {
@@ -95,8 +97,8 @@ describe("Detail", () => {
         'Pokemon "eevee" was not found. Please check the spelling and try again.'
       )
     ).toBeInTheDocument()
-    expect(screen.getByText("Oops!")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Back to Home" })).toHaveAttribute("href", "/")
+    expect(screen.getByText("[not found]")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "cd .." })).toHaveAttribute("href", "/")
   })
 
   it("shows a connection message when the request fails without a response", async () => {
@@ -124,12 +126,12 @@ describe("Detail", () => {
     renderDetail("pikachu")
     await user.click(screen.getByRole("button", { name: "go to eevee" }))
 
-    expect(await screen.findByText("- eevee -")).toBeInTheDocument()
+    expect(await screen.findByText("eevee", { selector: "h2" })).toBeInTheDocument()
 
     resolvePikachu({ data: pikachu })
 
-    await waitFor(() => expect(screen.getByText("- eevee -")).toBeInTheDocument())
-    expect(screen.queryByText("- pikachu -")).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText("eevee", { selector: "h2" })).toBeInTheDocument())
+    expect(screen.queryByText("pikachu", { selector: "h2" })).not.toBeInTheDocument()
   })
 
   it("ignores a stale error from a previous route param", async () => {
@@ -146,11 +148,11 @@ describe("Detail", () => {
     renderDetail("pikachu")
     await user.click(screen.getByRole("button", { name: "go to eevee" }))
 
-    expect(await screen.findByText("- eevee -")).toBeInTheDocument()
+    expect(await screen.findByText("eevee", { selector: "h2" })).toBeInTheDocument()
 
     rejectPikachu({ response: { status: 404 } })
 
-    await waitFor(() => expect(screen.getByText("- eevee -")).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText("eevee", { selector: "h2" })).toBeInTheDocument())
     expect(screen.queryByText(/was not found/)).not.toBeInTheDocument()
   })
 
@@ -161,12 +163,12 @@ describe("Detail", () => {
     )
 
     renderDetail("pikachu")
-    expect(await screen.findByText("- pikachu -")).toBeInTheDocument()
+    expect(await screen.findByText("pikachu", { selector: "h2" })).toBeInTheDocument()
 
     await user.click(screen.getByRole("button", { name: "go to eevee" }))
 
     // old pokemon never repaints; loading state takes over right away
-    expect(screen.queryByText("- pikachu -")).not.toBeInTheDocument()
+    expect(screen.queryByText("pikachu", { selector: "h2" })).not.toBeInTheDocument()
     expect(document.querySelector(".animate-spin")).not.toBeNull()
     expect(axios.get).toHaveBeenLastCalledWith(`${POKEMON_URL}/eevee`)
   })
@@ -178,11 +180,11 @@ describe("Detail", () => {
     )
 
     renderDetail("pikachu")
-    expect(await screen.findByText("- pikachu -")).toBeInTheDocument()
+    expect(await screen.findByText("pikachu", { selector: "h2" })).toBeInTheDocument()
 
     await user.click(screen.getByRole("button", { name: "go to eevee" }))
 
-    expect(await screen.findByText("- eevee -")).toBeInTheDocument()
+    expect(await screen.findByText("eevee", { selector: "h2" })).toBeInTheDocument()
     expect(axios.get).toHaveBeenLastCalledWith(`${POKEMON_URL}/eevee`)
     expect(screen.getByText("normal")).toBeInTheDocument()
   })

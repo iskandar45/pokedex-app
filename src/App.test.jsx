@@ -42,7 +42,7 @@ describe("App", () => {
 
     render(<App />)
 
-    expect(screen.getByText("PokéDex")).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: /pokedex/ })).toBeInTheDocument()
     expect(await screen.findByText("bulbasaur")).toBeInTheDocument()
     expect(screen.getByRole("contentinfo")).toBeInTheDocument()
   })
@@ -53,7 +53,7 @@ describe("App", () => {
 
     render(<App />)
 
-    expect(await screen.findByText("- pikachu -")).toBeInTheDocument()
+    expect(await screen.findByText("pikachu", { selector: "h2" })).toBeInTheDocument()
     expect(axios.get).toHaveBeenCalledWith(`${POKEMON_URL}/pikachu`)
   })
 

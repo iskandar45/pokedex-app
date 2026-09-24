@@ -40,7 +40,7 @@ const renderHome = () =>
     </MemoryRouter>
   )
 
-const searchInput = () => screen.getByPlaceholderText("Enter pokemon name...")
+const searchInput = () => screen.getByPlaceholderText("search pokemon...")
 
 const fullSpinner = () => document.querySelector(".h-52.animate-spin")
 const inlineSpinner = () => document.querySelector(".h-8.animate-spin")
@@ -76,7 +76,7 @@ describe("Home", () => {
       "src",
       "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/001.png"
     )
-    expect(screen.getAllByRole("link", { name: "Detail" })).toHaveLength(2)
+    expect(screen.getAllByRole("link", { name: "./detail" })).toHaveLength(2)
   })
 
   it("disables prev on the first page and enables next", async () => {
@@ -84,8 +84,8 @@ describe("Home", () => {
     renderHome()
     await screen.findByText("bulbasaur")
 
-    expect(screen.getByRole("button", { name: "prev" })).toBeDisabled()
-    expect(screen.getByRole("button", { name: "Next" })).toBeEnabled()
+    expect(screen.getByRole("button", { name: "< prev" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "next >" })).toBeEnabled()
   })
 
   it("loads the next page when Next is clicked", async () => {
@@ -95,12 +95,12 @@ describe("Home", () => {
     await screen.findByText("bulbasaur")
 
     respondWithPage(20)
-    await user.click(screen.getByRole("button", { name: "Next" }))
+    await user.click(screen.getByRole("button", { name: "next >" }))
 
     await waitFor(() =>
       expect(axios.get).toHaveBeenLastCalledWith(`${POKEMON_URL}?offset=20&limit=20`)
     )
-    await waitFor(() => expect(screen.getByRole("button", { name: "prev" })).toBeEnabled())
+    await waitFor(() => expect(screen.getByRole("button", { name: "< prev" })).toBeEnabled())
   })
 
   it("returns to the previous page when prev is clicked", async () => {
@@ -110,18 +110,18 @@ describe("Home", () => {
     await screen.findByText("bulbasaur")
 
     respondWithPage(20)
-    await user.click(screen.getByRole("button", { name: "Next" }))
+    await user.click(screen.getByRole("button", { name: "next >" }))
     await waitFor(() =>
       expect(axios.get).toHaveBeenLastCalledWith(`${POKEMON_URL}?offset=20&limit=20`)
     )
 
     respondWithPage(0)
-    await user.click(screen.getByRole("button", { name: "prev" }))
+    await user.click(screen.getByRole("button", { name: "< prev" }))
 
     await waitFor(() =>
       expect(axios.get).toHaveBeenLastCalledWith(`${POKEMON_URL}?offset=0&limit=20`)
     )
-    expect(screen.getByRole("button", { name: "prev" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "< prev" })).toBeDisabled()
   })
 
   it("disables next on the last page", async () => {
@@ -137,8 +137,8 @@ describe("Home", () => {
     renderHome()
     await screen.findByText("miraidon")
 
-    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled()
-    expect(screen.getByRole("button", { name: "prev" })).toBeEnabled()
+    expect(screen.getByRole("button", { name: "next >" })).toBeDisabled()
+    expect(screen.getByRole("button", { name: "< prev" })).toBeEnabled()
   })
 
   it("keeps the grid visible with an inline spinner while a page change is in flight", async () => {
@@ -153,7 +153,7 @@ describe("Home", () => {
         resolveNext = resolve
       })
     )
-    await user.click(screen.getByRole("button", { name: "Next" }))
+    await user.click(screen.getByRole("button", { name: "next >" }))
 
     // old page stays on screen, no full-height spinner overlay
     expect(screen.getByText("bulbasaur")).toBeInTheDocument()
@@ -161,7 +161,7 @@ describe("Home", () => {
     expect(inlineSpinner()).not.toBeNull()
 
     resolveNext({ data: buildPage(20) })
-    await waitFor(() => expect(screen.getByRole("button", { name: "prev" })).toBeEnabled())
+    await waitFor(() => expect(screen.getByRole("button", { name: "< prev" })).toBeEnabled())
     expect(inlineSpinner()).toBeNull()
   })
 
@@ -173,11 +173,11 @@ describe("Home", () => {
     await screen.findByText("bulbasaur")
 
     axios.get.mockRejectedValueOnce(new Error("network down"))
-    await user.click(screen.getByRole("button", { name: "Next" }))
+    await user.click(screen.getByRole("button", { name: "next >" }))
 
     expect(await screen.findByText(/Failed to load the Pokemon list/)).toBeInTheDocument()
     expect(screen.getByText("bulbasaur")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Next" })).toBeEnabled()
+    expect(screen.getByRole("button", { name: "next >" })).toBeEnabled()
     consoleError.mockRestore()
   })
 
@@ -225,7 +225,7 @@ describe("Home", () => {
     expect(await screen.findByText(/Failed to load the Pokemon list/)).toBeInTheDocument()
 
     respondWithPage(0)
-    await user.click(screen.getByRole("button", { name: "Retry" }))
+    await user.click(screen.getByRole("button", { name: "retry" }))
 
     expect(await screen.findByText("bulbasaur")).toBeInTheDocument()
     consoleError.mockRestore()
