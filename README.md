@@ -83,14 +83,11 @@ src/*.test.jsx          Unit test (Vitest + Testing Library)
 ## Deploy
 
 `npm run build` menghasilkan situs statis di `dist/` yang bisa di-deploy ke hosting apa pun
-(Vercel, Netlify, Cloudflare Pages, dsb). Karena memakai client-side routing, arahkan semua
-path fallback ke `index.html` (di Vercel cukup tambahkan rewrite:
+(Vercel, Netlify, Cloudflare Pages, dsb).
 
-```json
-{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
-```
-
-).
+Untuk **Vercel**, konfigurasi sudah disiapkan di [`vercel.json`](vercel.json): fallback semua
+path ke `index.html` (wajib untuk client-side routing) dan cache `immutable` untuk aset
+ber-hash. Hosting lain perlu mengatur fallback yang setara secara manual.
 
 ## Sumber Data
 
