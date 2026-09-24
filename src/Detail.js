@@ -1,39 +1,65 @@
 import axios from "axios"
 import React, { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 
 function Detail() {
-  const [data, setData] = useState([])
+  const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const { name } = useParams()
-  // console.log(name)
 
-  const fetchData = async () => {
-    try {
-      const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`)
-      setData(res.data)
-      setLoading(false)
-      // console.log(res.data)
-    } catch (err) {
-      console.log(err.response.data)
-      setLoading(false)
+  useEffect(() => {
+    let isActive = true
+
+    const fetchData = async () => {
+      setLoading(true)
+      setError("")
+      try {
+        const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`)
+        if (!isActive) return
+        setData(res.data)
+      } catch (err) {
+        if (!isActive) return
+        if (err.response && err.response.status === 404) {
+          setError(`Pokemon "${name}" was not found. Please check the spelling and try again.`)
+        } else {
+          setError("Failed to load Pokemon data. Please check your internet connection and try again.")
+        }
+      } finally {
+        if (isActive) setLoading(false)
+      }
     }
-  }
+
+    fetchData()
+
+    return () => {
+      isActive = false
+    }
+  }, [name])
 
   const padNumber = (num) => {
     return String(num).padStart(3, "0")
   }
 
-  useEffect(() => {
-    fetchData()
-  }, [])
-
-  // console.log(data)
   return (
     <div className="min-h-full">
       {loading ? (
         <div className="flex justify-center items-center h-[82vh]">
           <div className="animate-spin rounded-full h-52 w-52 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+      ) : error ? (
+        <div className="container max-w-4xl mx-auto">
+          <div className="border bg-white p-10 my-8 rounded-lg shadow-lg text-center">
+            <p className="text-6xl mb-4">😕</p>
+            <h1 className="text-3xl font-bold mb-3">Oops!</h1>
+            <p className="text-slate-600 mb-6">{error}</p>
+            <Link
+              to="/"
+              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
+            >
+              Back to Home
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="container max-w-4xl mx-auto">
